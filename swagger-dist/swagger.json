@@ -1,0 +1,476 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"description": "cVu API",
+		"version": "1.0.0",
+		"title": "cVu",
+		"contact": {
+			"email": "cpacket@cpacketnetworks.com"
+		},
+		"license": {
+			"name": "Apache 2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+		}
+	},
+	"schemes": [
+		"https"
+	],
+	"host": "localhost",
+	"responses": {
+		"Unauthorized": {
+			"description": "Unauthorized to perform this action"
+		}
+	},
+	"tags": [
+		{
+			"name": "Authentication",
+			"description": "cVu athentication APIs"
+		},
+		{
+			"name": "Read Topology",
+			"description": "Port details and configuration"
+		},
+		{
+			"name": "Write Topology",
+			"description": "Write port details and configuration."
+		}
+	],
+	"paths": {
+		"/__login__": {
+			"post": {
+				"summary": "Login to a cVu device",
+				"tags": [
+					"Authentication"
+				],
+				"consumes": [
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/html"
+				],
+				"parameters": [
+					{
+						"name": "username",
+						"in": "formData",
+						"description": "User name",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "password",
+						"in": "formData",
+						"description": "User password",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Valid user crendentials.",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 0
+								},
+								"msg": {
+									"type": "string",
+									"example": "Validated"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Invalid user crendentials",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 401
+								},
+								"msg": {
+									"type": "string",
+									"description": "Reason for failure",
+									"example": "Invalid Username/Password"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/logout": {
+			"get": {
+				"summary": "Logout of a cVu device.",
+				"description": "Logout of the device. User should have to be logged in first.",
+				"tags": [
+					"Authentication"
+				],
+				"produces": [
+					"application/json",
+					"text/html"
+				],
+				"responses": {
+					"200": {
+						"description": "User successfully logged out.",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 0
+								},
+								"msg": {
+									"type": "string",
+									"example": "Logged out"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/topology/write/configuration.json": {
+			"post": {
+				"tags": [
+					"Write Topology"
+				],
+				"summary": "write port configuration and links",
+				"description": "",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"in": "body",
+						"name": "body",
+						"description": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/writeTopology"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 0
+								},
+								"msg": {
+									"type": "string",
+									"example": ""
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Missing port ID",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 400
+								},
+								"msg": {
+									"type": "string",
+									"example": "Missing port ID"
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 403
+								},
+								"msg": {
+									"type": "string",
+									"example": "No Access"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/topology/read/configuration.json": {
+			"get": {
+				"tags": [
+					"Read Topology"
+				],
+				"summary": " Port configuration and links",
+				"description": "",
+				"consumes": [
+					"application/json"
+				],
+				"produces": [
+					"application/json"
+				],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/ReadTopology"
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"Forbidden": {
+			"type": "object",
+			"properties": {
+				"status": {
+					"type": "integer",
+					"example": 403
+				},
+				"msg": {
+					"type": "string",
+					"example": "NoAccess"
+				}
+			}
+		},
+		"ReadTopology": {
+			"type": "object",
+			"description": "Port details and their links",
+			"properties": {
+				"status": {
+					"type": "integer",
+					"example": 0,
+					"description": "Action succeeds, the status code 0. Failed, an error code is displayed."
+				},
+				"message": {
+					"type": "string",
+					"example": "msg",
+					"description": "Action succeeds, the message is an empty string. Failed, an error message is displayed."
+				},
+				"links": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ReadTopologyLink"
+					},
+					"description": "link details"
+				},
+				"port_configuration": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ReadPortConfiguration"
+					}
+				}
+			}
+		},
+		"ReadPortConfiguration": {
+			"type": "object",
+			"description": "Detials about the port",
+			"properties": {
+				"port_display_id": {
+					"type": "string",
+					"example": "1.1",
+					"description": "User displayed port ID"
+				},
+				"rate": {
+					"type": "string",
+					"example": "10",
+					"description": "Rate of port (1,10,40)"
+				},
+				"receiving": {
+					"type": "boolean",
+					"example": true,
+					"description": "Decapsulate packet and sending it over UDP tunnel"
+				},
+				"port_name": {
+					"type": "string",
+					"example": "Port_1_1516655757",
+					"description": "User provided  port name"
+				},
+				"mode": {
+					"type": "string",
+					"enum": [
+						"Standard",
+						"Top_Talker",
+						"cCapture",
+						"MACsec",
+						"GapDetection",
+						"cBurt"
+					],
+					"example": "Standard",
+					"description": "Information about port configuration"
+				},
+				"io": {
+					"type": "string",
+					"enum": [
+						"I",
+						"O",
+						"S"
+					],
+					"example": "I",
+					"description": "Information about port type( Input/Output/Stacking )."
+				},
+				"active": {
+					"type": "boolean",
+					"example": true,
+					"description": "Instruct whether the port is active"
+				},
+				"time_stamp": {
+					"type": "string",
+					"enum": [
+						"Y",
+						"N"
+					],
+					"example": "Y",
+					"description": "Encode 8-byte timestamp to packet."
+				},
+				"forwarding": {
+					"type": "boolean",
+					"example": true,
+					"description": "Encapsulate packet and sending it over UDP tunnel"
+				},
+				"port_id": {
+					"type": "integer",
+					"example": 1,
+					"description": "Internal port ID from 1 to number of ports on device"
+				}
+			}
+		},
+		"ReadTopologyLink": {
+			"type": "object",
+			"description": "link details and Type of link",
+			"properties": {
+				"to_port_id": {
+					"type": "integer",
+					"example": 4,
+					"description": "Output port ID"
+				},
+				"type": {
+					"type": "string",
+					"description": "Type of port link",
+					"enum": [
+						"aggregate",
+						"balance",
+						"multi_cluster_balance_1",
+						"multi_cluster_balance_2",
+						"multi_cluster_balance_3",
+						"cmatrix_tag_1",
+						"cmatrix_tag_2",
+						"cmatrix_tag_3",
+						"cmatrix_tag_4"
+					],
+					"example": "multi_cluster_balance_2"
+				},
+				"from_port_id": {
+					"type": "integer",
+					"example": 1,
+					"description": "Input port Id."
+				}
+			}
+		},
+		"writeTopology": {
+			"type": "object",
+			"description": "Write Port details and their links",
+			"properties": {
+				"links": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/writeTopologyLink"
+					},
+					"description": "link details"
+				},
+				"port_configuration": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/writePortConfiguration"
+					}
+				}
+			}
+		},
+		"writePortConfiguration": {
+			"type": "object",
+			"description": "Detials about the port",
+			"properties": {
+				"rate": {
+					"type": "string",
+					"example": "10",
+					"description": "Rate of port (1,10,40)."
+				},
+				"port_name": {
+					"type": "string",
+					"example": "Port_1_1516655757",
+					"description": "User provided  port name."
+				},
+				"io": {
+					"type": "string",
+					"enum": [
+						"I",
+						"O",
+						"S"
+					],
+					"example": "I",
+					"description": "Information about port type( Input/Output/Stacking )."
+				},
+				"time_stamp": {
+					"type": "string",
+					"enum": [
+						"Y",
+						"N"
+					],
+					"example": "Y",
+					"description": "Encode 8-byte timestamp to packet."
+				},
+				"port_id": {
+					"type": "integer",
+					"example": 20,
+					"description": "Internal port ID from 1 to number of ports on device."
+				}
+			}
+		},
+		"writeTopologyLink": {
+			"type": "object",
+			"description": "Select link details and Type of link",
+			"properties": {
+				"to_port_id": {
+					"type": "integer",
+					"example": 4,
+					"description": "Output port ID (Egress)"
+				},
+				"type": {
+					"type": "string",
+					"description": "Select Type of port link",
+					"enum": [
+						"aggregate",
+						"balance",
+						"multi_cluster_balance_1",
+						"multi_cluster_balance_2",
+						"multi_cluster_balance_3",
+						"cmatrix_tag_1",
+						"cmatrix_tag_2",
+						"cmatrix_tag_3",
+						"cmatrix_tag_4"
+					],
+					"example": "multi_cluster_balance_2"
+				},
+				"from_port_id": {
+					"type": "integer",
+					"example": 1,
+					"description": "Input port Id (Ingress)"
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,208 @@
+swagger: '2.0'
+info:
+  description: cVu API
+  version: 1.0.0
+  title: cVu
+  contact:
+    email: cpacket@cpacketnetworks.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+schemes:
+  - https
+host: localhost
+responses:
+  Unauthorized:
+    description: Unauthorized to perform this action
+tags:
+  - name: SFP Information
+    description: Provides information about sfp/xfp.
+paths:
+  /sfpinfo/data:
+    get:
+      tags:
+        - "SFP Information"
+      summary: "Provides information about sfp/xfp."
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/sfpInfo"
+
+definitions:
+  sfpInfo:
+    type: object
+    description: Provides information about sfp/xfp.
+    properties:
+      has_diagnostics:
+        type: boolean
+        example: true
+        description: "Diagnostics"
+      transceiver_codes:
+        type: array
+        items:
+          $ref: '#/definitions/transceiver_codes'
+        description: ""
+      temp_str:
+        type: string
+        example: "Temperature. 24.8906 C"
+        description: Module Temperature
+      vendor_rev:
+        type: string
+        example: "Vendor Rev. A"
+        description: The revision number from the vendor.
+      port:
+        type: integer
+        example: 1
+        description: An internal port identifier, a numeric value from 1 to MAX number of ports supported on the device.
+      desc_short:
+        type: string
+        example:   "Ethernet 10G Base-SR Eth…2.6dBm, Temp: 24.8906 C"
+        description: A short description of the module. Contains the transiever_code, vendor_pn, TxPower, RxPower and Temperature.
+      vendor_oui:
+        type: string
+        example: "Vendor OUI. 00:90:65"
+        description: Vendor oui.
+      rx_power_dbm:
+        type: string
+        example: "-2.6"
+        description: RxPower.
+      encoding_type:
+        type: string
+        example: "Encoding. 64B/66B"
+        description: Encoding
+      exist_module:
+        type: boolean
+        example: true
+        description: A module is inserted or not
+      status:
+        type: integer
+        example: 0
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      rx_str:
+        type: string
+        example: "RxPower. -2.6 dBm 0.5492 mW"
+        description: RxPower
+      warnings:
+        type: array
+        items:
+          type: string
+          example: "Length (50 um, OM2) 10m. 80.0 m"
+        description: A list of warnings if available
+      vendor_serial:
+        type: string
+        example: "Vendor SN. AQ504WB"
+        description: Vendor Serial Number.
+      diagnostics_compliance:
+        type: string
+        example: "Digital Diagnostics from Rev 10.2 or SFF-8472"
+        description: ""
+      temp_c:
+        type: number
+        example: 24.890625
+        description: Module Temperature.
+      port_display_id:
+        type: string
+        example: "1.1"
+        description: User displayed port ID.
+      module_type:
+        type: string
+        example:   "Module Identifier. SFP or SFP \"Plus\""
+        description: The module Identifier.
+      vendor_pn:
+        type: string
+        example: "FTLX8571D3BCV"
+        description: Vendor Part Number.
+      vendor_date_code:
+        type: string
+        example: "Vendor Date Code YYMMDD. 130820"
+        description: Date Code.
+      vendor_part_str:
+        type: string
+        example: "Vendor PN. FTLX8571D3BCV"
+        description: Vendor Part Number
+      desc:
+        type: string
+        example: "Module Identifier. SFP o…wer. -2.6 dBm 0.5492 mW"
+        description: A long description of the module. Contains elements from desc_short, warnings and vendor information.
+      tx_power_dbm:
+        type: string
+        example: "-2.1"
+        description: TxPower.
+      tx_str:
+        type: string
+        example: "TxPower. -2.1 dBm 0.6134 mW"
+        description: TxPower.
+      transceiver_codes_str:
+        type: array
+        items:
+          $ref: '#/definitions/transceiver_codes_str'
+        description: ""
+      port_display_name:
+        type: string
+        example: "1"
+        description: The default port displayed for the user.
+      vcc_str:
+        type: string
+        example: "Vcc. 3.2987 V"
+        description: Voltage.
+      length:
+        type: array
+        items:
+          $ref: '#/definitions/length'
+        description: ""
+      bias_str:
+        type: string
+        example: "TxBias. 7.7 mA"
+        description: Transmit bias.
+      vendor_name_str:
+        type: string
+        example: "Vendor name. FINISAR CORP."
+        description: Vendor Name.
+      alarms:
+        type: array
+        items:
+          type: string
+          example: ""
+        description: A list of alarms if available.
+      module_type_sfp:
+        type: boolean
+        example: true
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      vendor_name:
+        type: string
+        example: "FINISAR CORP."
+        description: Vendor Name.
+      msg:
+        type: string
+        example: ""
+        description: Action succeeds, the message is an empty string. Failed, an error message is displayed.
+  transceiver_codes:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Ethernet 10G Base-SR"
+        description: ""
+  transceiver_codes_str:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Transceiver Codes. Ethernet 10G Base-SR"
+        description: ""
+  length:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Length (50 um, OM2) 10m. 80.0 m"
+        description: ""

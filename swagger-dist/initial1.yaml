@@ -1,0 +1,1305 @@
+swagger: '2.0'
+info:
+  description: cVu API
+  version: 1.0.0
+  title: cVu
+  contact:
+    email: cpacket@cpacketnetworks.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+schemes:
+  - https
+host: localhost
+responses:
+  Unauthorized:
+    description: Unauthorized to perform this action
+  Forbidden:
+    description: Forbidden
+tags:
+  - name: Authentication
+    description: cVu athentication APIs
+  - name: Internal
+    description: Internal APIs
+  - name: General
+    description: General purpose APIs
+  - name: Counters
+    description: API related to port counters
+  - name: SFP Information
+    description: Provides information about sfp/xfp.
+  - name: Read Topology
+    description: Port details and configuration
+  - name: Write Topology
+    description: Write port details and configuration.
+paths:
+  /__login__:
+    post:
+      summary: Login to a cVu device
+      tags:
+        - Authentication
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - text/html
+      parameters:
+        - name: username
+          in: formData
+          description: User name
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: User password
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Valid user crendentials.
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 0
+              msg:
+                type: string
+                example: Validated
+        '401':
+          description: Invalid user crendentials
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 401
+              msg:
+                type: string
+                description: Reason for failure
+                example: Invalid Username/Password
+  /logout:
+    get:
+      summary: Logout of a cVu device.
+      description: Logout of the device. User should have to be logged in first.
+      tags:
+        - Authentication
+      produces:
+        - application/json
+        - text/html
+      responses:
+        '200':
+          description: User successfully logged out.
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 0
+              msg:
+                type: string
+                example: Logged out
+  /version.json:
+    get:
+      summary: Device version info
+      tags:
+        - General
+      responses:
+        '200':
+          description: Device version info
+          schema:
+            type: object
+            properties:
+              firmware_version:
+                type: string
+                description: The software or firmware version
+                example: 18.1.1_T297.cVu560NG_MASTER.43751E.01052018/2E/2E/2E/2A
+              device_serial_number:
+                type: string
+                description: The serial number assigned to the device
+                example: 170026-24-A02
+              chassis_controller_version:
+                type: string
+                description: The version number of the device chassis
+                example: 1.1.7
+              hostname:
+                type: string
+                description: Hostname
+              backboard_serial_number:
+                type: string
+                description: Device backboard serial number
+              product_label:
+                type: string
+                example: cVu560NG_MASTER
+              switch:
+                $ref: '#/definitions/VersionSwitch'
+              port_mode_versions:
+                $ref: '#/definitions/ArrayOfPortModeVersions'
+  /overview/all.rxtx.json:
+    get:
+      summary: Get port metadata and rxtx counter values
+      tags:
+        - Counters
+      responses:
+        '200':
+          description: Get port metadata and rxtx counter values of all ports
+          schema:
+            type: object
+            properties:
+              last_reset:
+                type: integer
+                description: unix epoch time
+              port_list:
+                type: array
+                description: PortRXTXCounters or PortRXTXCountersForbidden per port
+                items:
+                  type: object
+                  enum:
+                    - $ref: '#/definitions/PortRXTXCounters'
+                    - $ref: '#/definitions/PortRXTXCountersForbidden'
+        '403':
+          description: User has no access to any ports
+          schema:
+            $ref: '#/definitions/Forbidden'
+
+  /users/configure/read/users.json:
+    get:
+      tags:
+      - "users"
+      summary: "Get existing user entry/entries"
+      description: ""
+      operationId: "getUsers"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/User"
+
+  /users/configure/read/radius.json:
+    get:
+      tags:
+      - "users"
+      summary: "Get existing Radius configuration"
+      description: ""
+      operationId: "getRadiusInfo"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/RadiusInfo"
+
+  /users/configure/read/tacacs.json:
+    get:
+      tags:
+      - "users"
+      summary: "Get existing Tacacs+ configuration"
+      description: ""
+      operationId: "getTacacsInfo"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Tacacs+Info"
+
+  /users/configure/write/users.json:
+    get:
+      tags:
+      - "users"
+      summary: "Save new user entry/entries"
+      description: ""
+      operationId: "modifyUsers"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "List of lists for all user add/delete operations. format [\"add\", user_info]"
+        required: true
+        schema:
+          $ref: "#/definitions/UserActionList"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/UserActionList"
+
+  /users/configure/write/radius.json:
+    get:
+      tags:
+      - "users"
+      summary: "Save new Radius configuration"
+      description: ""
+      operationId: "modifyRadiusInfo"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "List of Radius configuration information"
+        required: true
+        schema:
+          $ref: "#/definitions/RadiusInfo"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/RadiusInfo"
+
+  /users/configure/write/tacacs.json:
+    get:
+      tags:
+      - "users"
+      summary: "Save new Tacacs+ configuration"
+      description: ""
+      operationId: "modifyTacacsInfo"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "data"
+        description: "List of Tacacs+ configuration information"
+        required: true
+        schema:
+          $ref: "#/definitions/Tacacs+Info"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Tacacs+Info"
+
+  /users/configure/read/console.json:
+    get:
+      tags:
+      - "users"
+      summary: "Get console logs"
+      description: ""
+      operationId: "getConsole"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              type: "string"
+  /sfpinfo/data:
+    get:
+      tags:
+        - "SFP Information"
+      summary: "Provides information about sfp/xfp."
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/sfpInfo"
+
+  /api/v1/topology/write/configuration.json:
+    post:
+      tags:
+        - "Write Topology"
+      summary: "write port configuration and links"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: body
+          required: true
+          schema:
+            $ref: '#/definitions/writeTopology'
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 0
+              msg:
+                type: string
+                example: ""
+        400:
+          description: "Missing port ID"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 400
+              msg:
+                type: string
+                example: "Missing port ID"
+        403:
+          description: "Forbidden"
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 403
+              msg:
+                type: string
+                example: "No Access"
+
+  /api/v1/topology/read/configuration.json:
+    get:
+      tags:
+        - "Read Topology"
+      summary: " Port configuration and links"
+      description: ""
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/ReadTopology"
+
+#  /api/v1/users/configure/write/users.json:
+#    post:
+#      tags:
+#        - "users"
+#      summary: "Modify and save user entry/entries"
+#      description: ""
+#      operationId: "modifyUsers"
+#      consumes:
+#      - "application/json"
+#      - "application/xml"
+#      produces:
+#      - "application/xml"
+#      - "application/json"
+#      parameters:
+#      - in: "query"
+#        name: "data"
+#        description: "List of lists for all user add/delete operations. format [\"add\", user_info]"
+#        required: true
+#        schema:
+#          type: "object"
+#          properties:
+#            add:
+#              type: "array"
+#              items:
+#                type:
+#                  $ref: "#/definitions/User"
+#            delete:
+#              type: "array"
+#              items:
+#                description: "user names"
+#                type: "string"
+#      responses:
+#        200:
+#          description: "Successful operation"
+#          schema:
+#            type: "object"
+#            properties:
+#              status:
+#                type: "integer"
+#              msg:
+#                type: "string"
+
+  /portmonitor:
+    get:
+      tags:
+      - "portmonitor"
+      summary: "Get status of cwr modes and port monitor"
+      description: ""
+      operationId: ""
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "string"
+
+  /portmonitor/status:
+    get:
+      tags:
+      - "portmonitor"
+      summary: "Get status of cwr modes and port monitor"
+      description: ""
+      operationId: ""
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "string"
+
+  /portmonitor/setdefault:
+    get:
+      tags:
+      - "portmonitor"
+      summary: "Reset cwr modes and port monitor to default values"
+      description: ""
+      operationId: ""
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "string"
+
+  /filters/port<portnum>/complex/filters_export:
+    get:
+      tags:
+      - "filters"
+      summary: "Export saved filters for the port from the device"
+      description: ""
+      operationId: "exportFilters"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "file"
+
+  /filters/port<portnum>/complex/filters_import:
+    post:
+      tags:
+      - "filters"
+      summary: "Import filters for the port to the device"
+      description: ""
+      operationId: "importFilters"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "file"
+        description: "import file"
+        required: true
+        schema:
+          type: "object"
+      responses:
+        200:
+          description: "Successful operation"
+  /settings/backup_data/snap:
+    get:
+      tags:
+      - Update
+      summary: Snapshot
+      description: Snapshot of the configuration (including stacking) will be taken. The backed up file will be rendered.
+      produces:
+        - application/force-download
+      parameters:
+      - in: body
+        name: query
+        description: Snapid (Unique identifier to relate individual backups in the Network Snapshot file)
+        required: true
+        schema:
+          $ref: '#/definitions/backupRequest'
+      responses:
+        '200':
+          description: Successful operation
+        '403':
+          $ref: '#/definitions/Forbidden'
+  /settings/restore/snap:
+    post:
+      tags:
+      - Update
+      summary: Restore
+      description: Perform restore from the submitted file.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Submit file, snapid, operation and filename.
+          schema:
+            $ref: '#/definitions/nwRestoreRequest'
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/nwRestoreResponse'
+        '403':
+          $ref: '#/definitions/Forbidden'
+  /settings/firmware/update:
+    post:
+      tags:
+      - Update
+      summary: Firmware Update
+      description: Perform firmware update from the submitted file.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Submit file, operation and filename.
+          schema:
+            $ref: '#/definitions/updateRequest'
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/updateResponse'
+        '403':
+          $ref: '#/definitions/Forbidden'
+definitions:
+  Forbidden:
+    type: object
+    properties:
+      status:
+        type: integer
+        example: 403
+      msg:
+        type: string
+        example: NoAccess
+  VersionSwitch:
+    type: object
+    description: Version info of the internal switch
+    properties:
+      serial_number:
+        type: string
+        example: CPSFCR-13500007
+      version:
+        type: string
+        example: '21740'
+  ArrayOfPortModeVersions:
+    type: array
+    items:
+      $ref: '#/definitions/PortModeVersion'
+  PortModeVersion:
+    type: object
+    description: Version info of the FPGA
+    properties:
+      portid:
+        type: string
+        example: 5
+      port_display_id:
+        type: string
+        example: 2.1
+      mode:
+        type: string
+        example: cBurst
+      mode_id:
+        type: string
+        example: JB_40G
+      mode_version:
+        type: string
+        example: 42664
+      subports:
+        type: array
+        items:
+          $ref: '#/definitions/SubPortModeVersion'
+  SubPortModeVersion:
+    type: object
+    properties:
+      portid:
+        type: string
+        example: 6
+      port_display_id:
+        type: string
+        example: 2.2
+  ReadTopology:
+    type: object
+    description: Port details and their links
+    properties:
+      status:
+        type: integer
+        example: 0
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      message:
+        type: string
+        example: 'msg'
+        description: Action succeeds, the message is an empty string. Failed, an error message is displayed.
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/ReadTopologyLink'
+        description: link details
+      port_configuration:
+        type: array
+        items:
+          $ref: '#/definitions/ReadPortConfiguration'
+  ReadPortConfiguration:
+    type: object
+    description: Detials about the port
+    properties:
+      status:
+        type: integer
+        example: 0
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      message:
+        type: string
+        example: 'msg'
+        description: Action succeeds, the message is an empty string. Failed, an error message is displayed.
+      port_display_id:
+        type: string
+        example: '1.1'
+        description: User displayed port ID
+      rate:
+        type: string
+        example: '10'
+        description: Rate of port (1,10,40)
+      receiving:
+        type: boolean
+        example: true
+        description: Decapsulate packet and sending it over UDP tunnel
+      port_name:
+        type: string
+        example: 'Port_1_1516655757'
+        description: User provided  port name
+      mode:
+        type: string
+        enum:
+          - Standard
+          - Top_Talker
+          - cCapture
+          - MACsec
+          - GapDetection
+          - cBurt
+        example: 'Standard'
+        description: Information about port configuration
+      io:
+        type: string
+        enum:
+          - I
+          - O
+          - S
+        example: "I"
+        description: Information about port type( Input/Output/Stacking ).
+      active:
+        type: boolean
+        example: true
+        description: Instruct whether the port is active
+      time_stamp:
+        type: string
+        enum:
+          - Y
+          - N
+        example: 'Y'
+        description: Encode 8-byte timestamp to packet.
+      forwarding:
+        type: boolean
+        example: true
+        description: Encapsulate packet and sending it over UDP tunnel
+      port_id:
+        type: integer
+        example: 1
+        description: Internal port ID from 1 to number of ports on device
+  ReadTopologyLink:
+    type: object
+    description: link details and Type of link
+    properties:
+      to_port_id:
+        type: integer
+        example: 4
+        description: Output port ID
+      "type":
+        type: string
+        description: Type of port link
+        enum:
+          - aggregate
+          - balance
+          - multi_cluster_balance_1
+          - multi_cluster_balance_2
+          - multi_cluster_balance_3
+          - cmatrix_tag_1
+          - cmatrix_tag_2
+          - cmatrix_tag_3
+          - cmatrix_tag_4
+        example: 'multi_cluster_balance_2'
+      from_port_id:
+        type: integer
+        example: 1
+        description: Input port Id.
+  writeTopology:
+    type: object
+    description: Write Port details and their links
+    properties:
+      links:
+        type: array
+        items:
+          $ref: '#/definitions/writeTopologyLink'
+        description: link details
+      port_configuration:
+        type: array
+        items:
+          $ref: '#/definitions/writePortConfiguration'
+  writePortConfiguration:
+    type: object
+    description: Detials about the port
+    properties:
+      rate:
+        type: string
+        example: '10'
+        description: Rate of port (1,10,40).
+      port_name:
+        type: string
+        example: 'Port_1_1516655757'
+        description: User provided  port name.
+      io:
+        type: string
+        enum:
+          - I
+          - O
+          - S
+        example: "I"
+        description: Information about port type( Input/Output/Stacking ).
+      time_stamp:
+        type: string
+        enum:
+          - Y
+          - N
+        example: 'Y'
+        description: Encode 8-byte timestamp to packet.
+      port_id:
+        type: integer
+        example: 20
+        description: Internal port ID from 1 to number of ports on device.
+  writeTopologyLink:
+    type: object
+    description: Select link details and Type of link
+    properties:
+      to_port_id:
+        type: integer
+        example: 4
+        description: Output port ID (Egress)
+      "type":
+        type: string
+        description: Select Type of port link
+        enum:
+          - aggregate
+          - balance
+          - multi_cluster_balance_1
+          - multi_cluster_balance_2
+          - multi_cluster_balance_3
+          - cmatrix_tag_1
+          - cmatrix_tag_2
+          - cmatrix_tag_3
+          - cmatrix_tag_4
+        example: 'multi_cluster_balance_2'
+      from_port_id:
+        type: integer
+        example: 1
+        description: Input port Id (Ingress)
+
+  PortRXTXCounters:
+    type: object
+    description: Port RXTX Counters per port
+    properties:
+      status:
+        type: integer
+        description: >-
+          Status indication for PORT rxtx counters see PortRXTXCountersError for
+          error scenaria
+      msg:
+        type: string
+        description: Empty value on success see PortRXTXCountersError for error scenario
+      port_id:
+        type: integer
+        minimum: 1
+        description: Internal portid 1 to max number of ports available
+      port_display_name:
+        type: string
+        description: >-
+          The port id displayed for the user. 1.1 for port 1 on cVu3240NG,
+          cVu2440NG and cx4100. 1  for port 1 on other devices
+      is_smart_port:
+        type: boolean
+        description: >-
+          Indicates if the port support smart features such as smart filters.
+          (Ex. CVu560NG does not support smart filters from port 41 to 56)
+      is_active:
+        type: integer
+        enum:
+          - 0
+          - 1
+        description: 1 if active else 0
+      ready:
+        type: boolean
+        description: Indicates if the port is ready to accept commands.
+      inserted:
+        type: boolean
+        description: Indicates if the SFP/QSFP is inserted
+      linked:
+        type: boolean
+        description: Indicates if a link is established
+      signal:
+        type: string
+        description: >-
+          The port speed supported values are 1G, 10G, 40G, 100G. When Port
+          Forwarding feature is enabled a “f” will be appended
+      in_out_flag:
+        type: string
+        enum:
+          - I
+          - O
+          - S
+        description: 'I is input, O is output and S is Stacking/Trunk mode'
+      rx_bps:
+        type: string
+        description: >-
+          Receive Bits Per Second when the port is an input port. If port is an
+          output port the value is “---”
+      rx_bytes:
+        type: string
+        description: >-
+          Received Bytes (Cumulative from the time last reset) when the port is
+          an input port. If port is an output port the value is “---”
+      rx_pps:
+        type: string
+        description: >-
+          Received Packets Per Second when the port is an input port. If port is
+          an output port the value is “---”
+      rx_packets:
+        type: string
+        description: >-
+          Received Packets (Cumulative from the time last reset) when the port
+          is an input port. If port is an output port the value is “---”
+      tx_bps:
+        type: string
+        description: >-
+          Transmit Bits Per Second when the port is an output port. If port is
+          an input port the value is “---”
+      tx_bytes:
+        type: string
+        description: >-
+          Transmit Bytes (Cumulative from the time last reset) when the port is
+          an output port. If port is an input port the value is “---”
+      tx_pps:
+        type: string
+        description: >-
+          Transmit Packets Per Second when the port is an output port. If port
+          is an input port the value is “---”
+      tx_packets:
+        type: string
+        description: >-
+          Received Packets (Cumulative from the time last reset) when the port
+          is an output port. If port is an input port the value is “---”
+      _bp_tx_packets_dropped:
+        type: integer
+        description: Packets dropped on internal switch
+      _bp_tx_pps_dropped:
+        type: integer
+        description: Packets dropped per second on internal switch
+      tx_packets_dropped:
+        type: integer
+        description: >-
+          Lost/Over-subscribed packets plus _bp_tx_packets_dropped [is a
+          negative number if value exists else 0]
+      tx_pps_dropped:
+        type: integer
+        description: >-
+          Lost/Over-subscribed packets per second plus _bp_tx_pps_dropped [is a
+          negative number if value exists else 0]
+      ts_flag:
+        type: string
+        enum:
+          - 'Y'
+          - 'N'
+        description: Indicates if time stamp feature is enabled or not
+      conn_agg:
+        type: string
+        description: >-
+          A comma separated list of port id's if an aggregation link exists to
+          /from the port
+      conn_bal:
+        type: string
+        description: >-
+          A comma separated list of port id's if an balance link exists to /from
+          the port
+  PortRXTXCountersForbidden:
+    type: object
+    description: When a user does not have access to the port
+    properties:
+      status:
+        type: integer
+        description: >-
+          Status indication a non zero error code for failure to get the rxtx
+          counters of a port
+        example: 403
+      msg:
+        type: string
+        description: Provides the reason for failure to provide counters
+        example: NoAccess
+      port_id:
+        type: integer
+        minimum: 1
+        description: Internal portid 1 to max number of ports available
+      port_display_name:
+        type: string
+        description: >-
+          The port id displayed for the user. 1.1 for port 1 on cVu3240NG,
+          cVu2440NG and cx4100. 1  for port 1 on other devices
+  sfpInfo:
+    type: object
+    description: Provides information about sfp/xfp.
+    properties:
+      has_diagnostics:
+        type: boolean
+        example: true
+        description: "Diagnostics"
+      transceiver_codes:
+        type: array
+        items:
+          $ref: '#/definitions/transceiver_codes'
+        description: ""
+      temp_str:
+        type: string
+        example: "Temperature. 24.8906 C"
+        description: Module Temperature
+      vendor_rev:
+        type: string
+        example: "Vendor Rev. A"
+        description: The revision number from the vendor.
+      port:
+        type: integer
+        example: 1
+        description: An internal port identifier, a numeric value from 1 to MAX number of ports supported on the device.
+      desc_short:
+        type: string
+        example:   "Ethernet 10G Base-SR Eth…2.6dBm, Temp: 24.8906 C"
+        description: A short description of the module. Contains the transiever_code, vendor_pn, TxPower, RxPower and Temperature.
+      vendor_oui:
+        type: string
+        example: "Vendor OUI. 00:90:65"
+        description: Vendor oui.
+      rx_power_dbm:
+        type: string
+        example: "-2.6"
+        description: RxPower.
+      encoding_type:
+        type: string
+        example: "Encoding. 64B/66B"
+        description: Encoding
+      exist_module:
+        type: boolean
+        example: true
+        description: A module is inserted or not
+      status:
+        type: integer
+        example: 0
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      rx_str:
+        type: string
+        example: "RxPower. -2.6 dBm 0.5492 mW"
+        description: RxPower
+      warnings:
+        type: array
+        items:
+          type: string
+          example: "Length (50 um, OM2) 10m. 80.0 m"
+        description: A list of warnings if available
+      vendor_serial:
+        type: string
+        example: "Vendor SN. AQ504WB"
+        description: Vendor Serial Number.
+      diagnostics_compliance:
+        type: string
+        example: "Digital Diagnostics from Rev 10.2 or SFF-8472"
+        description: ""
+      temp_c:
+        type: number
+        example: 24.890625
+        description: Module Temperature.
+      port_display_id:
+        type: string
+        example: "1.1"
+        description: User displayed port ID.
+      module_type:
+        type: string
+        example:   "Module Identifier. SFP or SFP \"Plus\""
+        description: The module Identifier.
+      vendor_pn:
+        type: string
+        example: "FTLX8571D3BCV"
+        description: Vendor Part Number.
+      vendor_date_code:
+        type: string
+        example: "Vendor Date Code YYMMDD. 130820"
+        description: Date Code.
+      vendor_part_str:
+        type: string
+        example: "Vendor PN. FTLX8571D3BCV"
+        description: Vendor Part Number
+      desc:
+        type: string
+        example: "Module Identifier. SFP o…wer. -2.6 dBm 0.5492 mW"
+        description: A long description of the module. Contains elements from desc_short, warnings and vendor information.
+      tx_power_dbm:
+        type: string
+        example: "-2.1"
+        description: TxPower.
+      tx_str:
+        type: string
+        example: "TxPower. -2.1 dBm 0.6134 mW"
+        description: TxPower.
+      transceiver_codes_str:
+        type: array
+        items:
+          $ref: '#/definitions/transceiver_codes_str'
+        description: ""
+      port_display_name:
+        type: string
+        example: "1"
+        description: The default port displayed for the user.
+      vcc_str:
+        type: string
+        example: "Vcc. 3.2987 V"
+        description: Voltage.
+      length:
+        type: array
+        items:
+          $ref: '#/definitions/length'
+        description: ""
+      bias_str:
+        type: string
+        example: "TxBias. 7.7 mA"
+        description: Transmit bias.
+      vendor_name_str:
+        type: string
+        example: "Vendor name. FINISAR CORP."
+        description: Vendor Name.
+      alarms:
+        type: array
+        items:
+          type: string
+          example: ""
+        description: A list of alarms if available.
+      module_type_sfp:
+        type: boolean
+        example: true
+        description: Action succeeds, the status code 0. Failed, an error code is displayed.
+      vendor_name:
+        type: string
+        example: "FINISAR CORP."
+        description: Vendor Name.
+      msg:
+        type: string
+        example: ""
+        description: Action succeeds, the message is an empty string. Failed, an error message is displayed.
+  transceiver_codes:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Ethernet 10G Base-SR"
+        description: ""
+  transceiver_codes_str:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Transceiver Codes. Ethernet 10G Base-SR"
+        description: ""
+  length:
+    type: object
+    description: ""
+    properties:
+      "0":
+        type: string
+        example: "Length (50 um, OM2) 10m. 80.0 m"
+        description: ""
+
+  UserActionList:
+    type: "array"
+    items:
+      $ref: "#/definitions/ActionInfo"
+
+  ActionInfo:
+    type: "array"
+    items:
+      allOf:
+        - $ref: "#/definitions/Actions"
+        - $ref: "#/definitions/User"
+
+  User:
+    type: "object"
+    description: "Complete user permission information"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+      auth_type:
+        type: "string"
+        enum: ["local", "radius", "tacacs+"]
+      isAdmin:
+        type: "boolean"
+      role:
+        type: "string"
+        enum: ["l1", "l2", "l3", "l3_r", "admin"]
+      portPerms:
+        $ref: "#/definitions/PortPerms"
+    xml:
+      name: "User"
+
+  PortPerms:
+    type: "object"
+    description: "Takes <port number, permission> as the key value pair, where the port number is a string and permission is: 1 if user has permission,  otherwise, 0 if the user doesn't have permission for that port"
+    properties:
+      "[1-256]":
+        type: "integer"
+        enum: [0, 1]
+
+  Actions:
+    type: "string"
+    description: "add/delete action for the user"
+    enum: ["add", "delete"]
+
+  RadiusInfo:
+    type: "array"
+    description: "Radius IP1, port1, secret1, IP2, port2, secret2"
+    items:
+      type: "string"
+
+  Tacacs+Info:
+    type: "array"
+    description: "Tacacs+ IP1, port1, secret1, mode1, IP2, port2, secret2, mode2"
+    items:
+      type: "string"
+  backupRequest:
+    type: object
+    properties:
+      snapid:
+        type: string
+        example: 'test123'
+  nwRestoreRequestFile:
+    type: object
+    properties:
+      restorefile:
+        type: string
+        format: binary
+        example: '/tmp/file_2018_02_02.bin'
+  nwRestoreRequestData:
+    type: object
+    properties:
+      restorefilename:
+        type: string
+        example: 'file_2018_02_02.bin'
+      operation:
+        type: string
+        example: 'restore'
+      snapid:
+        type: string
+        example: 'test123'
+  nwRestoreRequest:
+    type: object
+    properties:
+      files:
+        $ref: '#/definitions/nwRestoreRequestFile'
+      data:
+        $ref: '#/definitions/nwRestoreRequestData'
+  nwRestoreResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+        example: 0
+      msg:
+        type: string
+        example: 'Will restore snap, version=xyz snapid=test123'
+  updateRequestFile:
+    type: object
+    properties:
+      updatefile:
+        type: string
+        format: binary
+        example: '/tmp/file_2018_02_02.bin'
+  updateRequestData:
+    type: object
+    properties:
+      updatefilename:
+        type: string
+        example: 'file_2018_02_02.bin'
+      operation:
+        type: string
+        example: 'update'
+  updateRequest:
+    type: object
+    properties:
+      files:
+        $ref: '#/definitions/updateRequestFile'
+      data:
+        $ref: '#/definitions/updateRequestData'
+  updateResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+        example: 0
+      msg:
+        type: string
+        example: 'Will update software,  current=xyzv1.0 new=xyzv2.0'
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+security:
+  - basicAuth: []

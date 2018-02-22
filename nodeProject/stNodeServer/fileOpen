@@ -1,0 +1,5 @@
+var fs = require('fs');       // using fs module
+var buff = fs.readFileSync(process.argv[2]);   // path to ptoject   /Users/harit/Dev/nodeProject/node.txt
+var strn = buff.toString();       // toString method converts buffer object to string
+
+console.log(strn.split('\n').length-1);

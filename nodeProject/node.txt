@@ -1,0 +1,13 @@
+Npm -v // to knw version
+
+Npm init   //to create packagefile for package manager
+
+Npm whoami   // to see you are u using this account
+
+Npm adduser.  // to create a new user
+
+Npm init -scope=harit // adding user name to package.json
+
+Nmp install moduleName // to install dependences andpackages
+
+Nmp ls //shows list of all dependences and packages

@@ -1,0 +1,22 @@
+{
+  "name": "@harit/nodeproject",
+  "version": "1.0.2",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "harit",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harry0515/nodeProject.git"
+  },
+  "bugs": {
+    "url": "https://github.com/harry0515/nodeProject/issues"
+  },
+  "homepage": "https://github.com/harry0515/nodeProject#readme",
+  "description": "",
+  "dependencies": {
+    "@linclark/pkg": "^1.0.2"
+  }
+}
