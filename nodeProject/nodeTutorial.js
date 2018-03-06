@@ -12,6 +12,8 @@ console.log(__dirname); // gives the path of dir
 console.log(__filename); // gives the path of our file
 
 ///////////////////////////////////////############################################
+
+
 var counter = require("path to wanted js file"); // imports the wanted js file to our current working file
 
 // wanted file/////
@@ -35,16 +37,19 @@ var counter = x.counter1()
 /////////////////////////////////###############################
 
 
-////////// Event Module /////////
+////////// Event Module /////////##############################
 
 var event = require("events"); /// importing event module
 var myEmitter = new event.EventEmitter();
 
-myEmitter.on("someEvent", function(name){
+myEmitter.on("someEvent", function(name){   //// examples of some events are click in node.js we can create our own event and emit it "on" method is used for
+                                            //// creating some event and emit method is used for emiting
     console.log(name);
 });
 
 
-myEmitter.emit("someEvent");
+myEmitter.emit("someEvent",name);
 
-///////////////////////
+///////////////////////#####################################
+
+
